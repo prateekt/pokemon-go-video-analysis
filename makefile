@@ -8,3 +8,6 @@ build:
 deploy:
 	twine upload dist/*
 
+clean:
+	rm -rf build dist *.egg-info
+	rm -rf .pytest_cache
