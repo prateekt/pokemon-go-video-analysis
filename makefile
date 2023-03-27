@@ -1,5 +1,5 @@
 conda_dev:
-	conda env remove -n card_rec_env
+	conda env remove -n pogo_video_analysis_env
 	conda env create -f conda.yaml
 
 build:
