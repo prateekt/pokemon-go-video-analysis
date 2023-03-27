@@ -17,9 +17,10 @@ class BattleLoggerOp(Op):
         super().__init__(func=self.parse_battle_log)
         self.input: Optional[OCRPipelineResult] = None
         self.output: Optional[BattleLoggerResult] = None
+        self.opponent_text_screen_log = np.array([696, 164], dtype=float)
+        self.opponent_text_distance_t: float = 100
 
-    @staticmethod
-    def parse_battle_log(ocr_result: OCRPipelineResult) -> BattleLoggerResult:
+    def parse_battle_log(self, ocr_result: OCRPipelineResult) -> BattleLoggerResult:
         # obtain the OCR result as a dataframe of detected text boxes
         df = ocr_result.to_df()
         df["frame"] = [
@@ -27,7 +28,8 @@ class BattleLoggerOp(Op):
         ]
 
         # load Pokémon moves file
-        pokemon_df = pd.read_csv(os.path.join("..", "pkmn_data", "pokemon_moves.csv"))
+        pokemon_df = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
+                                              "pkmn_data", "pokemon_moves.csv"))
         available_pokemon = pokemon_df["Pokémon"].str.lower().values
 
         # determine which Pokémon are in the battle
@@ -40,8 +42,6 @@ class BattleLoggerOp(Op):
         pokemon_in_battle.remove(np.nan)
 
         # determine whose pokemon based on screen location
-        opponent_loc = np.array([696, 164], dtype=float)
-        distance_t = 10
         pokemon_owner = list()
         for hit in pokemon_in_battle:
             polygon_texts = df.bounding_box[df.found_pokemon == hit].values.astype(str)
@@ -50,11 +50,11 @@ class BattleLoggerOp(Op):
                 for text in polygon_texts
             ]
             starting_vertices = np.array(
-                [[int(v.split()[0]), int(v.split()[1])] for v in starting_vertices],
+                [[float(v.split()[0]), float(v.split()[1])] for v in starting_vertices],
                 dtype=float,
             )
-            d = np.sum(np.abs(starting_vertices - opponent_loc), 1)
-            if any(d <= distance_t):
+            d = np.sum(np.abs(starting_vertices - self.opponent_text_screen_log), 1)
+            if any(d <= self.opponent_text_distance_t):
                 pokemon_owner.append("opponent")
             else:
                 pokemon_owner.append("you")
