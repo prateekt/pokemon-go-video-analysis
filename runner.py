@@ -1,5 +1,6 @@
 import os
 
+from battle_logger.op import BattleLoggerOp
 from battle_logger.pipeline import BattleLoggerPipeline
 
 if __name__ == "__main__":
@@ -20,3 +21,7 @@ if __name__ == "__main__":
 
     # save output to disk
     pogo_pipeline.save_output(out_path=out_root, basename="output")
+
+    # save to file and check
+    battle_logger_op = pogo_pipeline.find_ops_by_class(op_class=BattleLoggerOp)[0]
+    battle_logger_op.save_input(out_path=out_root, basename="ocr_output")
