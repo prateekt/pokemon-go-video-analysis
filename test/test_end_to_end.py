@@ -7,7 +7,21 @@ from battle_logger.pipeline import BattleLoggerPipeline
 
 
 class TestEndToEnd(unittest.TestCase):
+
+    def test_dep(self) -> None:
+        """
+        Test that the dependencies are installed.
+        """
+
+        # check availability of pkmn_data
+        file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pkmn_data", "pokemon_moves.csv")
+        self.assertTrue(os.path.exists(file))
+
     def test_end_to_end(self) -> None:
+        """
+        Test end-to-end functionality of the BattleLoggerPipeline on a test video.
+        """
+
         # test up paths
         data_path = os.path.join(os.path.dirname(__file__), "test_data")
         test_video_path = os.path.join(data_path, "test_video.mp4")
@@ -29,8 +43,8 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(
             list(output.pokemon_in_frames.keys()),
             [
+                ("medicham", "my"),
                 ("plusle", "opponent"),
-                ("medicham", "you"),
                 ("electrode", "opponent"),
                 ("jolteon", "opponent"),
             ],

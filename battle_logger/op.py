@@ -17,55 +17,77 @@ class BattleLoggerOp(Op):
         super().__init__(func=self.parse_battle_log)
         self.input: Optional[OCRPipelineResult] = None
         self.output: Optional[BattleLoggerResult] = None
-        self.opponent_text_screen_log = np.array([696, 164], dtype=float)
-        self.opponent_text_distance_t: float = 100
+        self.opponent_pkmn_screen_coord = np.array([696, 164], dtype=float)
+        self.my_pkmn_screen_coord = np.array([105, 164], dtype=float)
+        self.max_text_dist: float = 50
 
     def parse_battle_log(self, ocr_result: OCRPipelineResult) -> BattleLoggerResult:
+        """
+        Parses the battle log and determines which Pokémon are in the battles.
+
+        param ocr_result: OCRPipelineResult object containing the OCR result.
+
+        return:
+            BattleLoggerResult object containing the Pokémon in the battle.
+        """
+
         # obtain the OCR result as a dataframe of detected text boxes
         df = ocr_result.to_df()
         df["frame"] = [
             int(os.path.basename(f).split(".")[0][3:]) for f in df.input_path
         ]
 
-        # load Pokémon moves file
+        # load Pokémon moves backend file
         pokemon_df = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                                               "pkmn_data", "pokemon_moves.csv"))
-        available_pokemon = pokemon_df["Pokémon"].str.lower().values
+        all_pokemon_names = pokemon_df["Pokémon"].str.lower().values
 
-        # determine which Pokémon are in the battle
-        found = df.text.str.contains("|".join(available_pokemon))
-        found[found.isnull()] = False
+        # run Pokémon filter on text in text boxes
+        found_pokemon = df.text.str.lower().str.contains("|".join(all_pokemon_names))
+        found_pokemon[found_pokemon.isnull()] = False
         df["found_pokemon"] = df.text.str.lower().str.extract(
-            "(" + "|".join(available_pokemon) + ")", expand=False
+            "(" + "|".join(all_pokemon_names) + ")", expand=False
         )
-        pokemon_in_battle = df.found_pokemon.unique().tolist()
-        pokemon_in_battle.remove(np.nan)
 
-        # determine whose pokemon based on screen location
-        pokemon_owner = list()
-        for hit in pokemon_in_battle:
-            polygon_texts = df.bounding_box[df.found_pokemon == hit].values.astype(str)
-            starting_vertices = [
-                text[str(text).find("(") + 2 : str(text).find(",")]
-                for text in polygon_texts
-            ]
-            starting_vertices = np.array(
-                [[float(v.split()[0]), float(v.split()[1])] for v in starting_vertices],
-                dtype=float,
-            )
-            d = np.sum(np.abs(starting_vertices - self.opponent_text_screen_log), 1)
-            if any(d <= self.opponent_text_distance_t):
-                pokemon_owner.append("opponent")
-            else:
-                pokemon_owner.append("you")
+        # isolate text boxes that fall within my or the opponent's Pokémon screen locations
+        text_boxes = df.bounding_box.values.astype(str)
+        starting_vertices = [
+            text[str(text).find("(") + 2: str(text).find(",")]
+            for text in text_boxes
+        ]
+        starting_vertices = np.array(
+            [[float(v.split()[0]), float(v.split()[1])] for v in starting_vertices],
+            dtype=float,
+        )
+        d1 = np.sum(np.abs(starting_vertices - self.my_pkmn_screen_coord), 1)
+        my_pkmn_text_boxes = df[(d1 < self.max_text_dist) & found_pokemon]
+        d2 = np.sum(np.abs(starting_vertices - self.opponent_pkmn_screen_coord), 1)
+        opponent_pkmn_text_boxes = df[(d2 < self.max_text_dist) & found_pokemon]
+
+        # isolate unique pokemon in battle
+        my_pokemon_list = my_pkmn_text_boxes.found_pokemon.unique()
+        opponents_pokemon_list = opponent_pkmn_text_boxes.found_pokemon.unique()
 
         # determine mapping to frame number
         pokemon_in_frames = {
-            (pokemon, pokemon_owner[i]): df.frame[df.found_pokemon == pokemon]
+            (my_pokemon, "my"): my_pkmn_text_boxes.frame[
+                my_pkmn_text_boxes.found_pokemon == my_pokemon
+            ]
             .unique()
             .tolist()
-            for i, pokemon in enumerate(pokemon_in_battle)
+            for my_pokemon in my_pokemon_list
         }
+        opponent_pokemon_in_frames = {
+            (opponents_pokemon, "opponent"): opponent_pkmn_text_boxes.frame[
+                opponent_pkmn_text_boxes.found_pokemon == opponents_pokemon
+            ]
+            .unique()
+            .tolist()
+            for opponents_pokemon in opponents_pokemon_list
+        }
+        pokemon_in_frames.update(opponent_pokemon_in_frames)
+
+        # return BattleLoggerResult object
         return BattleLoggerResult(pokemon_in_frames=pokemon_in_frames)
 
     def vis(self) -> None:
