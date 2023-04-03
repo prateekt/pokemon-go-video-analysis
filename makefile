@@ -11,3 +11,5 @@ deploy:
 clean:
 	rm -rf build dist *.egg-info
 	rm -rf .pytest_cache
+	rm -rf test_op_output
+	rm -rf test_output
