@@ -1,6 +1,7 @@
 import os
 import unittest
 
+import pandas as pd
 from ocr_ops.run_finding.interval import Interval
 
 from battle_logger.op import BattleLoggerOp
@@ -57,3 +58,9 @@ class TestEndToEnd(unittest.TestCase):
         # save to file and check
         battle_logger_op = pogo_pipeline.find_ops_by_class(op_class=BattleLoggerOp)[0]
         battle_logger_op.save_input(out_path=out_root, basename="ocr_output")
+
+        # save output and check
+        battle_logger_op.save_output(out_path=out_root, basename="battle_logger_output")
+        self.assertTrue(os.path.exists(os.path.join(out_root, "battle_logger_output.csv")))
+        df = pd.read_csv(os.path.join(out_root, "battle_logger_output.csv"))
+        self.assertEqual(len(df), 1)
