@@ -38,3 +38,7 @@ class TestBattleLoggerOp(unittest.TestCase):
         )
         self.assertTrue(~result[0].player_won)
         self.assertTrue(~result[1].player_won)
+
+        # save and plot
+        result.plot(out_root="test_op_output", suppress_output=True)
+        result.to_df().to_csv(os.path.join("test_op_output", "test_op_output.csv"), index=False)

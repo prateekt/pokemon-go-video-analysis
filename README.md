@@ -1,6 +1,8 @@
-# Pokemon Go Video Analysis
+# Pokémon Go Video Analysis
 
-Tools for analyzing Pokemon Go PvP Videos.
+Tools for analyzing Pokémon Go Player vs. Player (PvP) Videos.
+
+
 
 
     
