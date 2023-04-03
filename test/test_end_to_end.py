@@ -60,7 +60,7 @@ class TestEndToEnd(unittest.TestCase):
         battle_logger_op.save_input(out_path=out_root, basename="ocr_output")
 
         # save output and check
-        battle_logger_op.save_output(out_path=out_root, basename="battle_logger_output")
+        pogo_pipeline.save_output(out_path=out_root, basename="battle_logger_output")
         self.assertTrue(os.path.exists(os.path.join(out_root, "battle_logger_output.csv")))
         df = pd.read_csv(os.path.join(out_root, "battle_logger_output.csv"))
         self.assertEqual(len(df), 1)
