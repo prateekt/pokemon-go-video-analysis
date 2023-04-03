@@ -61,6 +61,9 @@ class TestEndToEnd(unittest.TestCase):
 
         # save output and check
         pogo_pipeline.save_output(out_path=out_root, basename="battle_logger_output")
-        self.assertTrue(os.path.exists(os.path.join(out_root, "battle_logger_output.csv")))
-        df = pd.read_csv(os.path.join(out_root, "battle_logger_output.csv"))
+        csv_file = [
+            file for file in os.listdir(out_root) if "parse_battle_log.csv" in file
+        ][0]
+        self.assertTrue(os.path.exists(os.path.join(out_root, csv_file)))
+        df = pd.read_csv(os.path.join(out_root, csv_file))
         self.assertEqual(len(df), 1)
