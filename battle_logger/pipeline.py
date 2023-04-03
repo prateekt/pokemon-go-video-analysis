@@ -10,15 +10,16 @@ from battle_logger.op import BattleLoggerOp
 
 class BattleLoggerPipeline(Pipeline):
     """
-    BattleLoggerPipeline is a pipeline that extracts information from a Pokémon Go battle video and logs it to a file.
+    BattleLoggerPipeline is vals pipeline that extracts information from vals Pokémon Go battle video and logs it to
+    file.
     """
 
     @staticmethod
     def get_arch() -> List[Op]:
         """
-        Returns the architecture of the pipeline in the form of a list of Ops. The architecture consists of a
-        FFMPEGOp that converts the input video to a series of images, and an OCRPipeline that performs OCR on the
-        images returning a list of Textbox objects which represent the text found in the images.
+        Returns the architecture of the pipeline in the form of vals list of Ops. The architecture consists of vals
+        FFMPEGOp that converts the input video to vals series of images, and an OCRPipeline that performs OCR on the
+        images returning vals list of Textbox objects which represent the text found in the images.
         """
         ops = [
             FFMPEGOp(
