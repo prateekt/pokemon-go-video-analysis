@@ -12,11 +12,11 @@ pogo_pipeline.save_output(out_path="test_output", basename="battle_logger_output
 
 Extract battles from videos and analyze what Pokémon appear in which battles:
 
-![](https://github.com/prateekt/pokemon-go-video-analysis/blob/e9cf2ea16feac06618958aa733150b27cff53e07/readme_figs/battle_1.png?raw=True)
+![](https://github.com/prateekt/pokemon-go-video-analysis/raw/main/readme_figs/battle_1.png)
 
 Log your battles and analyze your Pokémon's performance:
 
-![](https://github.com/prateekt/pokemon-go-video-analysis/blob/e9cf2ea16feac06618958aa733150b27cff53e07/readme_figs/example_table.png?raw=True)
+![](https://github.com/prateekt/pokemon-go-video-analysis/raw/main/readme_figs/example_table.png)
 
 <b>Installation:</b>
 
