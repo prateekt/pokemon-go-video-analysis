@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name="pokemon-go-video-analysis",
-    version="0.0.0.0.5.2",
+    version="0.0.0.0.5.3",
     author="Prateek Tandon",
     author_email="prateek1.tandon@gmail.com",
     description="Pokemon Go Video Analysis",
