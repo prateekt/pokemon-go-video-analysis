@@ -1,3 +1,0 @@
-ocr-ops
-ezplotly
-nose2
