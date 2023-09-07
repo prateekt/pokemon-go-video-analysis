@@ -3,13 +3,13 @@ conda_dev:
 	conda env create -f conda.yaml
 
 build:
-	python setup.py sdist bdist_wheel
+	hatch build
 
-deploy:
-	twine upload dist/*
+publish:
+	hatch publish
 
 clean:
-	rm -rf build dist *.egg-info
+	rm -rf dist
 	rm -rf .pytest_cache
 	rm -rf test_op_output
 	rm -rf test_output
